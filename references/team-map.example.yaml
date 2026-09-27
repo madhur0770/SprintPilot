@@ -1,0 +1,55 @@
+# Fictional documentation configuration. Copy to team-map.local.yaml and replace all values.
+
+board:
+  id: "YOUR_BOARD_ID"
+  project_keys:
+    - "YOUR_PROJECT_KEY"
+
+defaults:
+  dry_run: true
+  backlog_jql: "project = YOUR_PROJECT_KEY AND statusCategory != Done AND sprint is EMPTY ORDER BY priority DESC, created ASC"
+  active_sprint_jql: "project = YOUR_PROJECT_KEY AND sprint in openSprints() ORDER BY Rank ASC"
+  fields: "summary,status,assignee,priority,components,labels,updated,created,duedate"
+  stale_after_days: 3
+  standup_lookback_days: 1
+  blocked_statuses: ["Blocked", "On Hold"]
+  active_statuses: ["In Progress", "In Review", "Testing"]
+  done_statuses: ["Done", "Closed", "Resolved"]
+
+approval:
+  assignee_change_requires_approval: true
+  allow_apply_without_approval: false
+  assigning_authorities:
+    - name: "Example User (fictional)"
+      jira_assignee: "example@example.com"
+      scope: ["YOUR_PROJECT_KEY"]
+  audit_log: "automation/output/approvals.log"
+
+team:
+  - name: "Example User (fictional)"
+    jira_assignee: "example@example.com"
+    team: "Example Team"
+    skills: ["backend", "lead", "automation"]
+    components: ["Example Component"]
+    labels: ["example"]
+    max_in_progress: 3
+    sprint_capacity_points: 15
+    backup_assignee: "example@example.com"
+    unavailable_dates: []
+    assignment_allowlist: true
+  - name: "Example Teammate (fictional)"
+    jira_assignee: "example@example.com"
+    team: "Example Team"
+    skills: ["automation", "testing"]
+    components: ["Example Component"]
+    labels: ["example"]
+    max_in_progress: 2
+    sprint_capacity_points: 8
+    backup_assignee: "example@example.com"
+    unavailable_dates: []
+    assignment_allowlist: true
+
+rules:
+  ownership_order: ["component", "label", "skill", "history"]
+  never_auto_assign_labels: ["security", "architecture", "needs-manager-review"]
+  cross_team_assignment_requires_approval: true
