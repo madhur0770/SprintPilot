@@ -45,7 +45,7 @@ py -m venv .venv
 .\.venv\Scripts\python.exe -m pip install -r requirements.txt
 ```
 
-Alternatively, run `.scriptssetup.ps1` to perform those local setup steps. See [Windows setup](docs/windows-setup.md).
+Alternatively, run `.\scripts\setup.ps1` to perform those local setup steps. See [Windows setup](docs/windows-setup.md).
 
 ## Codex setup
 
