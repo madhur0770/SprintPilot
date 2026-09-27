@@ -8,6 +8,20 @@ SprintPilot packages nine Agile workflows as an AI prompt and orchestration skil
 
 The project helps a team lead inspect sprint health, prepare scope, triage backlog work, identify risks, and produce concise team reports. It keeps runs in dry-run mode by default and requires explicit approval metadata for supported Jira mutations.
 
+## Offline demo
+
+Run the recruiter-friendly demo directly in Windows PowerShell:
+
+```powershell
+.\scripts\demo-sprintpilot.ps1
+```
+
+It requires no account, credentials, installation, Codex, Jira, MCP, Python, or network access. The sprint and all people and issues are fictional; the demo does not connect to Jira. It writes a deterministic Markdown report to `automation/output/offline-demo-report.md`.
+
+## Live Jira/Codex setup
+
+The sections below describe the separate live workflow, which uses Codex CLI and an externally configured Atlassian/Jira MCP server.
+
 ## Key features
 
 - Nine focused workflows for planning, triage, ownership, workload, risk, and reporting.
@@ -85,9 +99,9 @@ See [sample workflow](examples/sample-workflow.md) for fictional sanitized input
 agents/                 Codex agent metadata
 automation/             Bash compatibility runner, wrappers, and prompts
 references/             Example team map, JQL guide, ownership policy
-scripts/                PowerShell setup, workflow runner, and validator
+scripts/                PowerShell setup, workflow runner, offline demo, and validator
 docs/                   Architecture, configuration, Windows setup, limitations
-examples/               Sanitized workflow walkthrough
+examples/               Synthetic offline demo data and workflow walkthrough
 ```
 
 ## Security considerations

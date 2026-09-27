@@ -1,0 +1,42 @@
+# SYNTHETIC DEMO DATA ONLY. These fictional sprint details do not come from Jira.
+data_notice: "SYNTHETIC DEMO DATA - fictional people, issues, and sprint details"
+sprint:
+  name: "Website Launch Sprint"
+  project: "SP-DEMO"
+  goal: "Prepare the launch page and signup flow for a fictional product."
+  start_date: "2026-09-21"
+  end_date: "2026-10-02"
+  capacity_points: 24
+issues:
+  - key: "SP-DEMO-11"
+    title: "Build launch page layout"
+    status: "In Progress"
+    owner: "Alex Morgan (fictional)"
+    estimate: 5
+    ready: true
+    detail: "Layout is approved and implementation is underway."
+    blocker: ""
+  - key: "SP-DEMO-12"
+    title: "Connect signup form to email service"
+    status: "Blocked"
+    owner: "Riley Chen (fictional)"
+    estimate: 8
+    ready: true
+    detail: "Form implementation is complete but cannot be verified end to end."
+    blocker: "Waiting for the fictional email sandbox endpoint and test account."
+  - key: "SP-DEMO-13"
+    title: "Write launch FAQ"
+    status: "To Do"
+    owner: "Jordan Lee (fictional)"
+    estimate: 3
+    ready: false
+    detail: "Draft exists, but product answers for two questions are missing."
+    blocker: "Product confirmation is needed for the supported regions."
+  - key: "SP-DEMO-14"
+    title: "Add mobile layout checks"
+    status: "To Do"
+    owner: "Casey Patel (fictional)"
+    estimate: 5
+    ready: true
+    detail: "Acceptance checks cover common phone and tablet widths."
+    blocker: ""

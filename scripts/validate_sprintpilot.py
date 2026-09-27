@@ -13,7 +13,7 @@ except ImportError:
 
 root = Path(sys.argv[1] if len(sys.argv) > 1 else Path(__file__).resolve().parents[1]).resolve()
 errors: list[str] = []
-required = ["README.md", "LICENSE", ".gitignore", "requirements.txt", "SKILL.md", "agents/openai.yaml", "references/team-map.example.yaml", "scripts/setup.ps1", "scripts/sprintpilot.ps1", "scripts/validate-sprintpilot.ps1", "docs/architecture.md", "docs/configuration.md", "docs/windows-setup.md", "docs/limitations.md", "examples/sample-workflow.md"]
+required = ["README.md", "LICENSE", ".gitignore", "requirements.txt", "SKILL.md", "agents/openai.yaml", "references/team-map.example.yaml", "scripts/setup.ps1", "scripts/sprintpilot.ps1", "scripts/demo-sprintpilot.ps1", "scripts/validate-sprintpilot.ps1", "docs/architecture.md", "docs/configuration.md", "docs/windows-setup.md", "docs/limitations.md", "examples/sample-workflow.md", "examples/demo-sprint.yaml"]
 for item in required:
     if not (root / item).is_file():
         errors.append(f"Missing required file: {item}")
@@ -41,6 +41,27 @@ for yaml_path in yaml_files:
                 errors.append("Team-map example must default to dry-run")
     except Exception as exc:
         errors.append(f"Invalid YAML in {rel}: {exc}")
+
+demo_fixture = root / "examples" / "demo-sprint.yaml"
+if demo_fixture.is_file():
+    try:
+        demo_data = yaml.safe_load(demo_fixture.read_text(encoding="utf-8"))
+        if not isinstance(demo_data, dict):
+            errors.append("Offline demo YAML root must be a mapping")
+        else:
+            if not isinstance(demo_data.get("sprint"), dict) or not demo_data.get("sprint"):
+                errors.append("Offline demo YAML must include sprint metadata as a mapping")
+            if not isinstance(demo_data.get("issues"), list) or not demo_data.get("issues"):
+                errors.append("Offline demo YAML must include a non-empty issues list")
+            marker = str(demo_data.get("data_notice", "")).casefold()
+            if "synthetic" not in marker and "fictional" not in marker and demo_data.get("synthetic") is not True:
+                errors.append("Offline demo YAML must explicitly identify its data as synthetic or fictional")
+    except Exception as exc:
+        errors.append(f"Invalid offline demo YAML structure: {exc}")
+
+readme_path = root / "README.md"
+if readme_path.is_file() and r".\scripts\demo-sprintpilot.ps1" not in readme_path.read_text(encoding="utf-8"):
+    errors.append("README.md must document the exact offline demo command")
 
 excluded = {".git", ".venv", "__pycache__"}
 files = [p for p in root.rglob("*") if p.is_file() and not any(part in excluded for part in p.relative_to(root).parts)]
