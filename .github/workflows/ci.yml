@@ -12,6 +12,9 @@ jobs:
   validate-and-test:
     name: ${{ matrix.os }} / ${{ matrix.shell }}
     runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        shell: ${{ matrix.shell }}
     strategy:
       fail-fast: false
       matrix:
@@ -29,9 +32,8 @@ jobs:
       - name: Validate repository content
         run: python scripts/validate_sprintpilot.py
       - name: Offline demo runs and matches the committed sample report
-        shell: ${{ matrix.shell }}
         run: |
-          .\scripts\demo-sprintpilot.ps1
+          ./scripts/demo-sprintpilot.ps1
           $actual = (Get-Content -Raw automation/output/offline-demo-report.md) -replace "`r`n", "`n"
           $expected = (Get-Content -Raw examples/sample-report.md) -replace "`r`n", "`n"
           if ($actual -ne $expected) { throw 'Demo output differs from examples/sample-report.md' }
