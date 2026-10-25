@@ -13,7 +13,7 @@ metadata:
 > **SprintPilot Configuration**: 
 > Configure your own Jira project key and JQL templates in the private team map or at run time.
 > 
-> **Integration**: Add this skill definition directly into **Codex or another supported AI orchestration environment to enable advanced, approval-gated sprint automation, queue triaging, and workload load-balancing.
+> **Integration**: Load this skill into an MCP-capable agent runtime (the bundled runners use Codex CLI) to get approval-gated sprint automation, queue triage, and workload balancing.
 
 This skill helps project leads manage sprint workflows using Atlassian Jira MCP tools. It assists in scope shaping, queue triage, load balancing, health monitoring, risk identification, and progress reporting—keeping all ownership changes behind a secure human approval gate.
 

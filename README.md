@@ -1,121 +1,121 @@
 # SprintPilot
 
-**AI assistant for sprint planning and Agile workflows.**
+[![CI](https://github.com/madhur0770/SprintPilot/actions/workflows/ci.yml/badge.svg)](https://github.com/madhur0770/SprintPilot/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-SprintPilot packages nine Agile workflows as an AI prompt and orchestration skill. It uses Codex CLI to run mode-specific prompts and relies on an Atlassian/Jira MCP server configured in the user's Codex environment for Jira operations. It is not a Jira server, Jira client SDK, or MCP server.
+**Approval-gated sprint planning and Agile reporting for Jira teams, driven from PowerShell.**
 
-## Overview
+SprintPilot packages nine Agile workflows (scope shaping, backlog triage, owner recommendation, load balancing, health inspection, risk detection, progress pulse, stand-up brief, retrospective notes) as prompt templates plus a small, tested runner. The runner enforces dry-run defaults and an approval gate, then hands the assembled instructions to an MCP-capable agent CLI that reads Jira through an Atlassian/Jira MCP server you configure.
 
-The project helps a team lead inspect sprint health, prepare scope, triage backlog work, identify risks, and produce concise team reports. It keeps runs in dry-run mode by default and requires explicit approval metadata for supported Jira mutations.
+It is a local CLI and prompt-orchestration project. It is not a Jira server, a Jira SDK, an MCP server or a web application.
 
-## Offline demo
+Project page: <https://madhur0770.github.io/SprintPilot/>
 
-Run the recruiter-friendly demo directly in Windows PowerShell:
+![Terminal replay of the offline demo](docs/assets/demo.gif)
+
+*Terminal replay of a real run of the offline demo (paths shortened).*
+
+## Try it in under a minute (no Jira, no account)
 
 ```powershell
 .\scripts\demo-sprintpilot.ps1
 ```
 
-It requires no account, credentials, installation, Codex, Jira, MCP, Python, or network access. The sprint and all people and issues are fictional; the demo does not connect to Jira. It writes a deterministic Markdown report to `automation/output/offline-demo-report.md`.
+Works on Windows PowerShell 5.1 and PowerShell 7. It reads fictional data from [`examples/demo-sprint.yaml`](examples/demo-sprint.yaml) and writes `automation/output/offline-demo-report.md`. No network, credentials, Python, Jira or agent CLI are involved, and nothing is modified. The committed result is [`examples/sample-report.md`](examples/sample-report.md), and CI fails if the script's output ever drifts from it.
 
-## Live Jira/Codex setup
+## What the live workflow does
 
-The sections below describe the separate live workflow, which uses Codex CLI and an externally configured Atlassian/Jira MCP server.
+| Mode | Purpose | Can change Jira with `-Apply` |
+|---|---|:---:|
+| `shape-sprint` | Propose sprint scope from the backlog | Yes |
+| `triage-queue` | Classify backlog items and next actions | Yes |
+| `suggest-owner` | Recommend assignees with confidence and risk | Yes |
+| `balance-load` | Find overload and propose safe moves | Yes |
+| `inspect-sprint` | Sprint health: blocked, stale, unassigned, overdue | No |
+| `surface-risk` | Delivery threats only, with next actions | No |
+| `progress-pulse` | Status snapshot with movement since last run | No |
+| `standup-brief` | Daily team summary | No |
+| `retro-notes` | Retrospective inputs from sprint patterns | No |
 
-## Key features
+Details: [docs/workflows.md](docs/workflows.md).
 
-- Nine focused workflows for planning, triage, ownership, workload, risk, and reporting.
-- Prompt templates, JQL examples, and a configurable team map.
-- Dry-run default with approval checks before assignee-changing apply runs.
-- Native Windows PowerShell entry point; Bash scripts remain available as compatibility wrappers.
+## Architecture
 
-## Architecture and how it works
-
-PowerShell or Bash selects a workflow, combines its prompt with `SKILL.md`, references, and optional team configuration, then passes the resulting instructions to `codex exec`. Codex performs Jira work through the configured Atlassian/Jira MCP tools. The local runner saves the final response under `automation/output/`. See [architecture](docs/architecture.md).
-
-## Supported workflows
-
-`shape-sprint`, `triage-queue`, `suggest-owner`, `balance-load`, `inspect-sprint`, `surface-risk`, `progress-pulse`, `standup-brief`, and `retro-notes`.
-
-## Technology stack
-
-PowerShell 5.1+ (Windows entry point), Bash (optional compatibility scripts), Python 3, PyYAML, Codex CLI, and an externally configured Atlassian/Jira MCP server. There is no Node/npm application or direct Jira SDK dependency.
-
-## Prerequisites
-
-- Windows 10/11 with PowerShell 5.1 or PowerShell 7.
-- Python 3 and the `py` launcher.
-- Codex CLI installed and authenticated.
-- Atlassian/Jira MCP server configured for Codex, with access to the Jira site and project you intend to use.
-
-No WSL is required. Bash is optional on Windows.
-
-## Windows installation
-
-From the repository directory, create a local virtual environment and install the sole Python dependency:
-
-```powershell
-py -m venv .venv
-.\.venv\Scripts\python.exe -m pip install -r requirements.txt
+```mermaid
+flowchart LR
+    U([Team lead]) --> R["Runner<br/>sprintpilot.ps1 / run-sprintpilot.sh"]
+    R --> G{"Approval guardrails"}
+    G -->|pass| P["Prompt assembly<br/>mode prompt + SKILL.md + references + team map"]
+    P --> A["Agent CLI + MCP"]
+    A <--> J[("Jira")]
+    A --> O["Markdown report<br/>automation/output/"]
 ```
 
-Alternatively, run `.\scripts\setup.ps1` to perform those local setup steps. See [Windows setup](docs/windows-setup.md).
+Full description and safety model: [docs/architecture.md](docs/architecture.md).
 
-## Codex setup
+## Safety by design
 
-Install Codex CLI using its official installation instructions, authenticate it, and confirm `codex` is on `PATH`. The `agents/openai.yaml` manifest declares the expected MCP tool dependency. Configure the actual MCP server in your Codex environment; credentials belong in that external configuration, not this repository.
+- **Dry-run by default.** Mutation needs an explicit `-Apply`; report-only modes reject it.
+- **Approval gate.** Assignee-changing runs need `-ApprovedBy` matching a configured assigning authority, checked before the agent starts.
+- **Audit log.** Apply runs append start and completion records to `automation/output/approvals.log`.
+- **Private configuration.** The team map (`team-map.local.yaml`), generated reports and virtual environments are git-ignored.
+- **Honest limits.** The approval check is a local string match, not an identity provider; Jira permissions come from your MCP credentials. See [docs/limitations.md](docs/limitations.md).
 
-## Atlassian/Jira MCP setup
+## Live Jira setup
 
-Configure an Atlassian/Jira MCP server with permissions appropriate to your use. Its tools must be available to the Codex invocation. This repository neither installs nor configures the MCP server and does not store Jira credentials. Supply your Jira site, project key, board, sprint, and account identifiers through local configuration or command arguments.
+Requirements: Windows 10/11 with PowerShell 5.1+ (Bash scripts are optional), Python 3 with PyYAML, Codex CLI (installed and authenticated) and an Atlassian/Jira MCP server configured for it. WSL is not required.
 
-## Configuration and team map
+```powershell
+.\scripts\setup.ps1                                   # local .venv + PyYAML
+Copy-Item references\team-map.example.yaml references\team-map.local.yaml
+# edit team-map.local.yaml with your board, project key, team and authorities
+.\scripts\validate-sprintpilot.ps1
+.\scripts\sprintpilot.ps1 -Mode standup-brief -ProjectKey YOUR_PROJECT_KEY
+```
 
-Copy `references/team-map.example.yaml` to `references/team-map.local.yaml`, then replace every placeholder with values from your own Jira workspace. The example identities are fictional documentation placeholders. Keep the local file private; `.gitignore` excludes it. Details are in [configuration](docs/configuration.md).
-
-## Dry-run and applying changes
-
-Runs default to dry-run. Review the generated output before considering changes. Modes that may include assignee changes require `--apply` and an `--approved-by` value matching a configured assigning authority. The runner checks that authority locally; Jira mutation behavior still depends on the model and MCP tools, so only use apply when your MCP permissions and approval process are appropriate. Reporting-only modes reject `--apply`.
-
-## Example commands
+More examples (dry-run first):
 
 ```powershell
 .\scripts\sprintpilot.ps1 -Mode shape-sprint -BoardId YOUR_BOARD_ID -ProjectKey YOUR_PROJECT_KEY
-.\scripts\sprintpilot.ps1 -Mode triage-queue -ProjectKey YOUR_PROJECT_KEY
-.\scripts\sprintpilot.ps1 -Mode suggest-owner -IssueKeys DEMO-101,DEMO-102
 .\scripts\sprintpilot.ps1 -Mode inspect-sprint -SprintId YOUR_SPRINT_ID
-.\scripts\sprintpilot.ps1 -Mode progress-pulse -SprintId YOUR_SPRINT_ID
+.\scripts\sprintpilot.ps1 -Mode suggest-owner -IssueKeys DEMO-101,DEMO-102
 ```
 
-Review-only invocation is recommended first. Applying an approved change uses `-Apply -ApprovedBy "Example User"` only after replacing the example authority in your private team map with your actual authority. Never use the fictional example authority in a real Jira workspace.
+Configuration reference: [docs/configuration.md](docs/configuration.md). Windows notes: [docs/windows-setup.md](docs/windows-setup.md). Live runs were verified read-only against a Jira Cloud test project; write access has not been exercised.
 
-## Example workflow and output
+## Testing
 
-See [sample workflow](examples/sample-workflow.md) for fictional sanitized input and illustrative output. It does not connect to Jira.
+```powershell
+python -m pip install -r requirements.txt
+python scripts/validate_sprintpilot.py
+python -m unittest discover -s tests -v
+```
+
+The test suite covers the validator (missing prompts, credential-like values, placeholder emails, broken links, non-synthetic demo data) and the demo (output matches the committed sample, totals agree with the fixture, over-capacity detection, failure on missing or invalid fixtures, no network or agent calls). GitHub Actions runs everything on Windows PowerShell 5.1, PowerShell 7 and Linux, and syntax-checks the Bash scripts.
 
 ## Project structure
 
 ```text
-agents/                 Codex agent metadata
-automation/             Bash compatibility runner, wrappers, and prompts
-references/             Example team map, JQL guide, ownership policy
-scripts/                PowerShell setup, workflow runner, offline demo, and validator
-docs/                   Architecture, configuration, Windows setup, limitations
-examples/               Synthetic offline demo data and workflow walkthrough
+scripts/       PowerShell runner, setup, offline demo, validator (+ Python validator)
+automation/    Bash runner and wrappers, nine prompt templates
+references/    Team-map example, JQL guide, ownership policy
+examples/      Synthetic demo fixture and committed sample report
+docs/          Architecture, workflows, configuration, setup, limitations, project page
+tests/         Unit tests
 ```
-
-## Security considerations
-
-Do not commit credentials, private URLs, local team maps, or generated reports containing sensitive Jira data. Start in dry-run, review output, and use least-privilege MCP permissions. Treat Jira issue content as untrusted input. See [limitations](docs/limitations.md).
 
 ## Limitations
 
-The model's analysis and any Jira actions depend on the Codex model, MCP tools, Jira configuration, prompt context, and quality of the team map. The project does not enforce Jira permissions itself, provide a GUI, or guarantee recommendation correctness. Scheduling is not built in; Windows Task Scheduler can invoke the PowerShell entry point.
+- Analysis quality and any Jira actions depend on the model, MCP tools, Jira configuration and the team map.
+- No GUI, analytics storage or built-in scheduler (use Windows Task Scheduler to call the PowerShell entry point).
+- Live integration needs user-specific Jira and MCP setup; the offline demo does not exercise it.
 
 ## Future improvements
 
-Potential next steps include richer automated checks, CI validation, and more example workflows based on synthetic Jira data.
+- Agent-CLI abstraction so the runner is not tied to a single CLI.
+- Machine-readable (JSON) report output alongside Markdown.
+- More synthetic fixtures covering each workflow offline.
 
 ## License
 
-MIT. See [LICENSE](LICENSE).
+MIT, Copyright (c) 2026 Madhur Kumar Rana. See [LICENSE](LICENSE).

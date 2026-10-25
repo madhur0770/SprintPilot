@@ -104,16 +104,21 @@ if ($riskIssues.Count -eq 0) {
     }
 }
 $report += @('', '## Recommended next steps', '')
-if ($blockedIssues.Count -gt 0) {
-    foreach ($issue in $blockedIssues) {
-        $report += "- Resolve the dependency for **$($issue.key)** and confirm the signup flow in the fictional email sandbox."
-    }
+foreach ($issue in $blockedIssues) {
+    $report += "- Owner $($issue.owner) to unblock **$($issue.key)**: $($issue.blocker)"
 }
 foreach ($issue in $notReadyIssues) {
-    $report += "- Confirm the missing product decision for **$($issue.key)** before treating it as ready for sprint delivery."
+    $why = if ($issue.blocker) { ": $($issue.blocker)" } else { '.' }
+    $report += "- Make **$($issue.key)** sprint-ready before committing to it$why"
+}
+$capacity = [int]$demo.sprint.capacity_points
+$undeliverable = @($demo.issues | Where-Object { $_.status -eq 'Blocked' -or -not $_.ready }).Count
+if ($totalPoints -gt $capacity) {
+    $report += "- Planned work exceeds capacity by $($totalPoints - $capacity) points; remove or defer scope."
+} else {
+    $report += "- Planned work fits the stated capacity with $($capacity - $totalPoints) points of headroom, but $undeliverable issue(s) above are not yet deliverable."
 }
 $report += @(
-    "- Keep the sprint commitment within the stated $($demo.sprint.capacity_points)-point capacity and revisit scope if estimates change."
     '- Recheck blocked and not-ready work during the next team sync.'
     ''
     '## Execution details'
@@ -121,12 +126,12 @@ $report += @(
     '- **Mode:** deterministic offline demo'
     '- **Input:** `examples/demo-sprint.yaml`'
     '- **Data:** fictional and synthetic; no Jira records are used.'
-    '- **Connections:** none; this script does not invoke Codex, Jira, Atlassian MCP, credentials, or network resources.'
+    '- **Connections:** none; this script does not call an agent CLI, Jira, Atlassian MCP, credentials, or network resources.'
     '- **Changes applied:** none; this is a local report only.'
     ''
 )
 
 New-Item -ItemType Directory -Path $outputDirectory -Force | Out-Null
 $utf8NoBom = New-Object System.Text.UTF8Encoding($false)
-[System.IO.File]::WriteAllText($reportPath, ($report -join "`r`n"), $utf8NoBom)
+[System.IO.File]::WriteAllText($reportPath, ($report -join "`n"), $utf8NoBom)
 Write-Output "Report: $reportPath"

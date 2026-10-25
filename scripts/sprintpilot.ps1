@@ -2,21 +2,21 @@
 param(
     [Parameter(Mandatory)][ValidateSet('shape-sprint','triage-queue','suggest-owner','balance-load','inspect-sprint','surface-risk','progress-pulse','standup-brief','retro-notes')][string]$Mode,
     [switch]$Apply,
-    [string]$ApprovedBy = $env:SPRINT_ASSIGNER_APPROVED_BY,
-    [string]$ApprovalNote = $env:SPRINT_ASSIGNER_APPROVAL_NOTE,
+    [string]$ApprovedBy = $env:SPRINTPILOT_APPROVED_BY,
+    [string]$ApprovalNote = $env:SPRINTPILOT_APPROVAL_NOTE,
     [string]$Workdir = $env:CODEX_WORKDIR,
     [string]$Model = $env:CODEX_MODEL,
     [string]$OutputFile,
-    [string]$TeamMap = $env:SPRINT_ASSIGNER_TEAM_MAP,
-    [string]$BoardId = $env:SPRINT_ASSIGNER_BOARD_ID,
-    [string]$ProjectKey = $env:SPRINT_ASSIGNER_PROJECT_KEYS,
-    [string]$SprintId = $env:SPRINT_ASSIGNER_SPRINT_ID,
-    [string]$SprintName = $env:SPRINT_ASSIGNER_SPRINT_NAME,
-    [string]$StartDate = $env:SPRINT_ASSIGNER_START_DATE,
-    [string]$EndDate = $env:SPRINT_ASSIGNER_END_DATE,
-    [string]$IssueKeys = $env:SPRINT_ASSIGNER_ISSUE_KEYS,
-    [string]$Jql = $env:SPRINT_ASSIGNER_JQL,
-    [string]$Extra = $env:SPRINT_ASSIGNER_EXTRA_PROMPT
+    [string]$TeamMap = $env:SPRINTPILOT_TEAM_MAP,
+    [string]$BoardId = $env:SPRINTPILOT_BOARD_ID,
+    [string]$ProjectKey = $env:SPRINTPILOT_PROJECT_KEYS,
+    [string]$SprintId = $env:SPRINTPILOT_SPRINT_ID,
+    [string]$SprintName = $env:SPRINTPILOT_SPRINT_NAME,
+    [string]$StartDate = $env:SPRINTPILOT_START_DATE,
+    [string]$EndDate = $env:SPRINTPILOT_END_DATE,
+    [string]$IssueKeys = $env:SPRINTPILOT_ISSUE_KEYS,
+    [string]$Jql = $env:SPRINTPILOT_JQL,
+    [string]$Extra = $env:SPRINTPILOT_EXTRA_PROMPT
 )
 
 $ErrorActionPreference = 'Stop'
@@ -52,7 +52,7 @@ New-Item -ItemType Directory -Force -Path $outputDir | Out-Null
 if (-not $OutputFile) { $OutputFile = Join-Path $outputDir ("{0}-{1}.md" -f $Mode,(Get-Date).ToUniversalTime().ToString('yyyyMMddTHHmmssZ')) }
 $outputParent = Split-Path -Parent $OutputFile
 if ($outputParent) { New-Item -ItemType Directory -Force -Path $outputParent | Out-Null }
-$previous = $env:SPRINT_ASSIGNER_PREVIOUS_SNAPSHOT
+$previous = $env:SPRINTPILOT_PREVIOUS_SNAPSHOT
 if (-not $previous -and $Mode -eq 'progress-pulse') {
     $previous = Get-ChildItem $outputDir -Filter 'progress-pulse-*.md' -File -ErrorAction SilentlyContinue | Sort-Object Name | Select-Object -Last 1 -ExpandProperty FullName
 }

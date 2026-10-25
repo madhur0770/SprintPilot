@@ -65,7 +65,6 @@ if readme_path.is_file() and r".\scripts\demo-sprintpilot.ps1" not in readme_pat
 
 excluded = {".git", ".venv", "__pycache__"}
 files = [p for p in root.rglob("*") if p.is_file() and not any(part in excluded for part in p.relative_to(root).parts)]
-brand_fragments = ("codin" + "zhub", "coder " + "coder")
 secret_patterns = [re.compile(r"(?i)\bsk-[A-Za-z0-9_-]{20,}\b"), re.compile(r"\bgh[pousr]_[A-Za-z0-9]{30,}\b"), re.compile(r"\bAKIA[0-9A-Z]{16}\b"), re.compile(r"-----BEGIN (?:RSA|OPENSSH|EC) PRIVATE KEY-----"), re.compile(r"(?i)(?:api[_-]?key|access[_-]?token|password|client[_-]?secret)\s*[:=]\s*[\"']?(?!YOUR_|CHANGE_ME|REPLACE_ME)[A-Za-z0-9_./+=-]{8,}")]
 email_pattern = re.compile(r"[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}")
 for path in files:
@@ -74,11 +73,6 @@ for path in files:
     except (UnicodeError, OSError):
         continue
     rel = path.relative_to(root).as_posix()
-    lowered = content.casefold()
-    for fragment in brand_fragments:
-        if fragment in lowered:
-            errors.append(f"Competition branding remains in {rel}")
-            break
     for pattern in secret_patterns:
         if pattern.search(content):
             errors.append(f"Possible credential in {rel} (value withheld)")

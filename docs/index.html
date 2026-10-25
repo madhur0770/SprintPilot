@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SprintPilot</title>
+<meta name="description" content="Approval-gated sprint planning and Agile reporting for Jira teams, driven from PowerShell.">
+<style>
+:root{--bg:#fafaf9;--fg:#1c1917;--muted:#57534e;--card:#fff;--line:#e7e5e4;--accent:#2563eb;--code:#f5f5f4}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#0f1115;--fg:#e7e5e4;--muted:#a8a29e;--card:#171a21;--line:#292e38;--accent:#7aa2f7;--code:#12151b}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.6 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+main{max-width:860px;margin:0 auto;padding:48px 16px 64px}
+h1{font-size:2.2rem;margin:0 0 .25rem;letter-spacing:-.02em}
+h2{font-size:1.25rem;margin:2.5rem 0 .75rem}
+.lead{font-size:1.15rem;color:var(--muted);margin:0 0 1.25rem}
+a{color:var(--accent)}
+.btns{display:flex;flex-wrap:wrap;gap:.6rem;margin:1.25rem 0}
+.btn{display:inline-block;padding:.55rem 1rem;border-radius:8px;border:1px solid var(--line);background:var(--card);text-decoration:none;font-weight:600;color:var(--fg)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+pre,code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:.9rem}
+pre{background:var(--code);border:1px solid var(--line);border-radius:8px;padding:12px 14px;overflow-x:auto}
+img{max-width:100%;height:auto;border-radius:10px;border:1px solid var(--line)}
+table{width:100%;border-collapse:collapse;font-size:.95rem;background:var(--card);border:1px solid var(--line);border-radius:8px;overflow:hidden}
+th,td{text-align:left;padding:.5rem .7rem;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-weight:600;background:var(--code)}
+.table-wrap{overflow-x:auto}
+.note{border-left:3px solid var(--accent);padding:.2rem 1rem;background:var(--card);border-radius:0 8px 8px 0;color:var(--muted)}
+ul{padding-left:1.2rem}
+footer{margin-top:3rem;color:var(--muted);font-size:.9rem}
+.flow{display:flex;flex-wrap:wrap;align-items:center;gap:.5rem;margin:1rem 0}
+.flow span{padding:.45rem .7rem;border:1px solid var(--line);border-radius:8px;background:var(--card);font-size:.9rem}
+.flow i{font-style:normal;color:var(--muted)}
+</style>
+</head>
+<body>
+<main>
+  <h1>SprintPilot</h1>
+  <p class="lead">Approval-gated sprint planning and Agile reporting for Jira teams, driven from PowerShell.</p>
+  <p>Nine Agile workflows packaged as prompt templates and a small, tested runner. Dry-run is the default, assignee changes need a named approver, and the live Jira path goes through an MCP server you configure. By Madhur Kumar Rana.</p>
+  <div class="btns">
+    <a class="btn primary" href="https://github.com/madhur0770/SprintPilot">View on GitHub</a>
+    <a class="btn" href="https://github.com/madhur0770/SprintPilot/blob/main/examples/sample-report.md">Read a sample report</a>
+    <a class="btn" href="https://github.com/madhur0770/SprintPilot/actions/workflows/ci.yml">CI status</a>
+  </div>
+
+  <p class="note">This page is a showcase of a local command-line project. It is not a hosted version of the tool. To see it work, run the offline demo below on Windows.</p>
+
+  <h2>See it run</h2>
+  <img src="assets/demo.gif" alt="Terminal replay of the offline demo generating a sprint report" width="1040" height="560">
+  <p style="color:var(--muted);font-size:.9rem">Terminal replay of a real run (paths shortened).</p>
+<pre><code>git clone https://github.com/madhur0770/SprintPilot.git
+cd SprintPilot
+.\scripts\demo-sprintpilot.ps1</code></pre>
+  <p>No account, Jira, Python or network needed. It uses fictional data and writes a Markdown report.</p>
+
+  <h2>How it works</h2>
+  <div class="flow" aria-label="Execution flow">
+    <span>Runner (PowerShell / Bash)</span><i>&rarr;</i><span>Approval guardrails</span><i>&rarr;</i><span>Prompt assembly</span><i>&rarr;</i><span>Agent CLI + MCP</span><i>&rarr;</i><span>Jira (read)</span><i>&rarr;</i><span>Markdown report</span>
+  </div>
+  <ul>
+    <li><strong>Dry-run by default;</strong> report-only modes reject <code>-Apply</code>.</li>
+    <li><strong>Approval gate:</strong> assignee-changing runs need <code>-ApprovedBy</code> matching a configured authority, checked before the agent starts, with an audit log.</li>
+    <li><strong>Private config:</strong> team map and reports are git-ignored; a validator scans for credential-like values.</li>
+  </ul>
+
+  <h2>The nine workflows</h2>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Mode</th><th>Purpose</th><th>Can write</th></tr></thead>
+    <tbody>
+      <tr><td><code>shape-sprint</code></td><td>Propose sprint scope from the backlog</td><td>Yes</td></tr>
+      <tr><td><code>triage-queue</code></td><td>Classify backlog items and next actions</td><td>Yes</td></tr>
+      <tr><td><code>suggest-owner</code></td><td>Recommend assignees with confidence and risk</td><td>Yes</td></tr>
+      <tr><td><code>balance-load</code></td><td>Find overload and propose safe moves</td><td>Yes</td></tr>
+      <tr><td><code>inspect-sprint</code></td><td>Blocked, stale, unassigned and overdue work</td><td>No</td></tr>
+      <tr><td><code>surface-risk</code></td><td>Delivery threats with next actions</td><td>No</td></tr>
+      <tr><td><code>progress-pulse</code></td><td>Status snapshot with movement since last run</td><td>No</td></tr>
+      <tr><td><code>standup-brief</code></td><td>Daily team summary</td><td>No</td></tr>
+      <tr><td><code>retro-notes</code></td><td>Retrospective inputs</td><td>No</td></tr>
+    </tbody>
+  </table></div>
+
+  <h2>Engineering evidence</h2>
+  <ul>
+    <li>Unit tests for the validator and the offline demo.</li>
+    <li>CI on Windows PowerShell 5.1, PowerShell 7 and Linux; the demo output is compared with a committed sample report on every push.</li>
+    <li>Live workflow checked read-only against a Jira Cloud test project; write access not exercised.</li>
+  </ul>
+
+  <h2>Known limitations</h2>
+  <ul>
+    <li>Quality of analysis depends on the model, MCP tools and team map.</li>
+    <li>The approval check is a local string match, not an identity provider.</li>
+    <li>The live path needs your own Jira and MCP setup and is not covered by automated tests.</li>
+  </ul>
+
+  <footer>&copy; 2026 Madhur Kumar Rana &middot; MIT License &middot; <a href="https://github.com/madhur0770/SprintPilot">Source</a></footer>
+</main>
+</body>
+</html>
