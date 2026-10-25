@@ -13,7 +13,7 @@ except ImportError:
 
 root = Path(sys.argv[1] if len(sys.argv) > 1 else Path(__file__).resolve().parents[1]).resolve()
 errors: list[str] = []
-required = ["README.md", "LICENSE", ".gitignore", "requirements.txt", "SKILL.md", "agents/openai.yaml", "references/team-map.example.yaml", "scripts/setup.ps1", "scripts/sprintpilot.ps1", "scripts/demo-sprintpilot.ps1", "scripts/validate-sprintpilot.ps1", "docs/architecture.md", "docs/configuration.md", "docs/windows-setup.md", "docs/limitations.md", "examples/sample-workflow.md", "examples/demo-sprint.yaml"]
+required = ["README.md", ".gitignore", "requirements.txt", "SKILL.md", "agents/openai.yaml", "references/team-map.example.yaml", "scripts/setup.ps1", "scripts/sprintpilot.ps1", "scripts/demo-sprintpilot.ps1", "scripts/validate-sprintpilot.ps1", "docs/architecture.md", "docs/configuration.md", "docs/windows-setup.md", "docs/limitations.md", "examples/sample-workflow.md", "examples/demo-sprint.yaml"]
 for item in required:
     if not (root / item).is_file():
         errors.append(f"Missing required file: {item}")

@@ -1,7 +1,6 @@
 # SprintPilot
 
 [![CI](https://github.com/madhur0770/SprintPilot/actions/workflows/ci.yml/badge.svg)](https://github.com/madhur0770/SprintPilot/actions/workflows/ci.yml)
-[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
 **Approval-gated sprint planning and Agile reporting for Jira teams, driven from PowerShell.**
 
@@ -116,6 +115,6 @@ tests/         Unit tests
 - Machine-readable (JSON) report output alongside Markdown.
 - More synthetic fixtures covering each workflow offline.
 
-## License
+## Author
 
-MIT, Copyright (c) 2026 Madhur Kumar Rana. See [LICENSE](LICENSE).
+Madhur Kumar Rana
